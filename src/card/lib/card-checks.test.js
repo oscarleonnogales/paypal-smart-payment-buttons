@@ -222,7 +222,6 @@ describe("card-checks", () => {
       };
       const cardNumber = "4111111111111111";
       const cardType = detectCardType(cardNumber)[0];
-      expect.assertions(2);
       expect(checkCardEligibility(cardNumber, cardType, true)).toBe(false);
       expect(checkCardEligibility(cardNumber, cardType, false)).toBe(false);
     });
@@ -235,7 +234,6 @@ describe("card-checks", () => {
       };
       const cardNumber = "4111111111111111";
       const cardType = detectCardType(cardNumber)[0];
-      expect.assertions(2);
       expect(checkCardEligibility(cardNumber, cardType, true)).toBe(false);
       expect(checkCardEligibility(cardNumber, cardType, false)).toBe(false);
     });
@@ -243,7 +241,6 @@ describe("card-checks", () => {
     it("should default to ineligible if there is no funding eligibility specified", () => {
       const cardNumber = "4111111111111111";
       const cardType = detectCardType(cardNumber)[0];
-      expect.assertions(2);
       expect(checkCardEligibility(cardNumber, cardType, true)).toBe(false);
       expect(checkCardEligibility(cardNumber, cardType, false)).toBe(false);
     });
@@ -251,7 +248,6 @@ describe("card-checks", () => {
     it("should default to eligible if there is no card number entered", () => {
       const cardNumber = "";
       const cardType = detectCardType(cardNumber)[0];
-      expect.assertions(2);
       expect(checkCardEligibility(cardNumber, cardType, true)).toBe(true);
       expect(checkCardEligibility(cardNumber, cardType, false)).toBe(true);
     });
