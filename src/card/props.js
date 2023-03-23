@@ -35,7 +35,7 @@ import type {
   ParsedCardType,
   FieldsState,
 } from "./types";
-import { CARD_FIELD_TYPE, CARD_ERRORS } from "./constants";
+import { CARD_FIELD_TYPE, CARD_ERRORS, SUBMIT_ERRORS } from "./constants";
 
 // export something to force webpack to see this as an ES module
 export const TYPES = true;
@@ -223,7 +223,9 @@ export function getCardProps({
 
   const baseProps = getProps({ branded });
 
-  if (createVaultSetupToken) {
+  if (createVaultSetupToken && createOrder) {
+    throw new Error(SUBMIT_ERRORS.PASSING_BOTH_FUNCTIONS);
+  } else if (createVaultSetupToken) {
     return {
       ...baseProps,
       ...validateVaultWithoutPurchaseSetup(xprops, baseProps),
@@ -279,7 +281,7 @@ export function getCardProps({
       hcfSessionID
     }
   } else {
-    throw new Error('Must pass either createVaultSetupToken or createOrder');
+    throw new Error(SUBMIT_ERRORS.MISSING_BOTH_FUNCTIONS);
   }
 }
 

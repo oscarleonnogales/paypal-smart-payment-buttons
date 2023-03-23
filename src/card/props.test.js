@@ -8,6 +8,7 @@ import * as getPropsStuff from "../props/props";
 import * as getLegacyPropsStuff from "../props/legacyProps";
 
 import { getCardProps } from "./props";
+import { SUBMIT_ERRORS } from "./constants";
 
 const vaultMock = {
   createVaultSetupToken: vi.fn(),
@@ -71,7 +72,7 @@ describe("getCardProps", () => {
       };
 
       expect(() => getCardProps(inputs)).toThrow(
-        `Do not pass ${prop} with an action.`
+        SUBMIT_ERRORS.PASSING_BOTH_FUNCTIONS
       );
     });
 
