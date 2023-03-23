@@ -48,7 +48,7 @@ describe("getCardProps", () => {
     // $FlowIssue
     window.xprops.createVaultSetupToken = undefined;
     expect(() => getCardProps(inputs)).toThrowError(
-      "Must pass either createVaultSetupToken or createOrder"
+      SUBMIT_ERRORS.MISSING_BOTH_FUNCTIONS
     );
   });
 
@@ -59,7 +59,7 @@ describe("getCardProps", () => {
       };
 
       expect(() => getCardProps(inputs)).toThrowError(
-        "onApprove is required when saving card fields"
+        SUBMIT_ERRORS.MISSING_ONAPPROVE
       );
     });
 

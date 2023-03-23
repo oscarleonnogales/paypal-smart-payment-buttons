@@ -159,11 +159,11 @@ function validateVaultWithoutPurchaseSetup(xprops, baseProps): {| createVaultSet
 
   // this if check is really for Flow so that later it knows this function is defined
   if (!xprops?.createVaultSetupToken) {
-      throw new Error("createVaultSetupToken is required when saving card fields");
+      throw new Error(SUBMIT_ERRORS.MISSING_CREATE_VAULT_SETUP);
   }
 
   if (!xprops?.onApprove) {
-      throw new Error("onApprove is required when saving card fields");
+      throw new Error(SUBMIT_ERRORS.MISSING_ONAPPROVE);
   }
 
   return {
