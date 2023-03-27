@@ -23,7 +23,7 @@ type SubmitCardFieldsOptions = {|
   |},
 |};
 
-function handleVaultFlow(cardProps: SaveCardFieldsProps, card: Card, extraFields?: ExtraFields): ZalgoPromise<void> {
+function handleVaultWithoutPurchaseFlow(cardProps: SaveCardFieldsProps, card: Card, extraFields?: ExtraFields): ZalgoPromise<void> {
   return savePaymentSource({
     onApprove: cardProps.onApprove,
     createVaultSetupToken: cardProps.createVaultSetupToken,
@@ -88,7 +88,7 @@ export function submitCardFields({
   });
 
   // $FlowIssue
-  const [isPurchaseFlow, isVaultFlow] = [Boolean(cardProps.createOrder), Boolean(cardProps.createVaultSetupToken)];
+  const [isPurchaseFlow, isVaultWithoutPurchaseFlow] = [Boolean(cardProps.createOrder), Boolean(cardProps.createVaultSetupToken)];
 
   resetGQLErrors();
 
@@ -96,14 +96,14 @@ export function submitCardFields({
     if (!hasCardFields()) {
       throw new Error(SUBMIT_ERRORS.UNABLE_TO_SUBMIT);
     }
-    const card = getCardFields(isVaultFlow);
+    const card = getCardFields(isVaultWithoutPurchaseFlow);
 
     if (isPurchaseFlow) {
       // $FlowFixMe
       return handlePurchaseFlow(cardProps, card, extraFields, facilitatorAccessToken);
-    } else if (isVaultFlow) {
+    } else if (isVaultWithoutPurchaseFlow) {
       // $FlowFixMe
-      return handleVaultFlow(cardProps, card, extraFields)
+      return handleVaultWithoutPurchaseFlow(cardProps, card, extraFields)
     }
   });
 }

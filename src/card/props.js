@@ -140,45 +140,6 @@ type GetCardPropsOptions = {|
   featureFlags: FeatureFlags,
 |};
 
-/**
- * These CardFields props are disallowed when createVaultSetupToken is also provided.
- * This is to prevent confusion between which flow is being used at runtime.
- */
-const disallowedPropsWithSave = [
-  "createOrder",
-];
-/**
- * When CardFields is used with createVaultSetupToken, the required properties change. This is for validating the arguments in that use-case.
- */
-function validateVaultWithoutPurchaseSetup(xprops, baseProps): {| createVaultSetupToken: XCreateVaultSetupToken, onApprove: SaveActionOnApprove |} {
-  disallowedPropsWithSave.forEach((prop) => {
-    if (xprops[prop]) {
-      throw new Error(`Do not pass ${prop} with an action.`);
-    }
-  });
-
-  // this if check is really for Flow so that later it knows this function is defined
-  if (!xprops?.createVaultSetupToken) {
-      throw new Error(SUBMIT_ERRORS.MISSING_CREATE_VAULT_SETUP);
-  }
-
-  if (!xprops?.onApprove) {
-      throw new Error(SUBMIT_ERRORS.MISSING_ONAPPROVE);
-  }
-
-  return {
-    createVaultSetupToken: getCreateVaultSetupToken({
-      createVaultSetupToken: xprops.createVaultSetupToken,
-    }),
-      // $FlowIssue we have an issue with xprops.onApprove but we need a larger refactor to fix this
-    onApprove: getSaveActionOnApprove({
-      // $FlowIssue
-      onApprove: xprops.onApprove,
-      onError: baseProps.onError,
-    }),
-  };
-}
-
 export function getCardProps({
   facilitatorAccessToken,
   featureFlags,
@@ -225,63 +186,49 @@ export function getCardProps({
 
   if (createVaultSetupToken && createOrder) {
     throw new Error(SUBMIT_ERRORS.PASSING_BOTH_FUNCTIONS);
-  } else if (createVaultSetupToken) {
-    return {
-      ...baseProps,
-      ...validateVaultWithoutPurchaseSetup(xprops, baseProps),
-      ...returnData,
-    };
-  } else if (createOrder) {
-    // $FlowFixMe
-    const props = getLegacyProps({
-      paymentSource: null,
-      partnerAttributionID: xprops.partnerAttributionID,
-      merchantID: xprops.merchantID,
-      clientID: xprops.clientID,
-      currency: xprops.currency,
-      intent: xprops.intent,
-      clientAccessToken: xprops.clientAccessToken,
-      branded,
-      vault: false,
-      facilitatorAccessToken,
-      featureFlags,
-      onShippingChange: xprops.onShippingChange,
-      onShippingAddressChange: xprops.onShippingAddressChange,
-      onShippingOptionsChange: xprops.onShippingOptionsChange,
-      onError: baseProps.onError,
-      onCancel: xprops.onCancel,
-      onApprove: xprops.onApprove,
-      createSubscription: xprops.createSubscription,
-      createOrder: xprops.createOrder,
-      createBillingAgreement: xprops.createBillingAgreement,
-    });
+  }
 
-    // $FlowFixMe
-    return {
-      ...baseProps,
-      ...props,
-      type,
-      branded,
-      style,
-      placeholder,
-      // $FlowFixMe
-      onApprove: xprops.onApprove,
-      // $FlowFixMe
-      createOrder: xprops.createOrder,
-      onError: xprops.onError,
-      minLength,
-      maxLength,
-      cardSessionID,
-      fundingEligibility,
-      inputEvents,
-      export: parent ? parent.export : xport,
-      facilitatorAccessToken,
-      sdkCorrelationID,
-      partnerAttributionID,
-      hcfSessionID
-    }
-  } else {
+  if (!createVaultSetupToken && !createOrder) {
     throw new Error(SUBMIT_ERRORS.MISSING_BOTH_FUNCTIONS);
+  }
+
+  if (createVaultSetupToken && !xprops?.onApprove) {
+    throw new Error(SUBMIT_ERRORS.MISSING_ONAPPROVE);
+  }
+
+  const props = createOrder ? getLegacyProps({
+    paymentSource: null,
+    partnerAttributionID: xprops.partnerAttributionID,
+    merchantID: xprops.merchantID,
+    clientID: xprops.clientID,
+    currency: xprops.currency,
+    intent: xprops.intent,
+    clientAccessToken: xprops.clientAccessToken,
+    branded,
+    vault: false,
+    facilitatorAccessToken,
+    featureFlags,
+    onShippingChange: xprops.onShippingChange,
+    onShippingAddressChange: xprops.onShippingAddressChange,
+    onShippingOptionsChange: xprops.onShippingOptionsChange,
+    onError: baseProps.onError,
+    onCancel: xprops.onCancel,
+    onApprove: xprops.onApprove,
+    createSubscription: xprops.createSubscription,
+    createOrder: xprops.createOrder,
+    createBillingAgreement: xprops.createBillingAgreement,
+  }) : null;
+
+  // $FlowFixMe
+  return {
+    ...baseProps,
+    ...props,
+    ...returnData,
+    // $FlowIssue
+    createVaultSetupToken: createVaultSetupToken ? getCreateVaultSetupToken({ createVaultSetupToken: xprops.createVaultSetupToken }) : null,
+    // $FlowIssue
+    onApprove: createOrder ? props.onApprove : getSaveActionOnApprove({ onApprove: xprops.onApprove, onError: baseProps.onError }),
+    onError: xprops.onError
   }
 }
 
